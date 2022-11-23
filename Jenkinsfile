@@ -1,6 +1,14 @@
 pipeline {
   agent any
   stages {
+    stage('clone down') {
+      agent {
+      label 'master-label'
+      }
+          steps {
+           stash excludes: '.git' , name: 'code' 
+          }
+        }
     stage('paralle execution') {
       parallel {
         stage('Hello') {
@@ -16,7 +24,11 @@ pipeline {
             }
 
           }
+          options {
+          skipDefaultCheckout true
+          }
           steps {
+            unstash 'code'
             sh 'ci/build-app.sh'
             archiveArtifacts 'app/build/libs/'
             sh 'ls -la'
